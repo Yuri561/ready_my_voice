@@ -1,29 +1,21 @@
-def download_file(filepath, filedialog, textbox):
-    import shutil
-    import os
+from tkinter import filedialog
 
-    try:
-        # Check if file exists
-        if not os.path.exists(filepath):
-            textbox.insert("end", "Error: File does not exist.\n")
-            return
+def download_file(file_path, filedialog_module=filedialog, text_widget=None):
+    if not file_path:
+        return
 
-        filename = filedialog.asksaveasfilename(
-            defaultextension=".mp3",
-            initialfile="default_name.mp3",
-            filetypes=[("MP3 files", "*.mp3")]
-        )
-        # Handle user cancelation
-        if not filename:
-            textbox.insert("end", "Download canceled by user.\n")
-            return
+    save_path = filedialog_module.asksaveasfilename(
+        defaultextension=".mp3",
+        filetypes=[("MP3 Files", "*.mp3"), ("All Files", "*.*")]
+    )
 
-        # Copy file to selected destination
-        shutil.copy(filepath, filename)
-
-        # Notify success
-        textbox.insert("end", f"File downloaded successfully to: {filename}\n")
-
-    except Exception as e:
-        # Correctly reference textbox for error messages
-        textbox.insert("end", f"An error occurred: {str(e)}\n")
+    if save_path:
+        try:
+            with open(file_path, "rb") as src, open(save_path, "wb") as dst:
+                dst.write(src.read())
+        except Exception as e:
+            print(f"Download failed: {e}")
+            if text_widget:
+                text_widget.insert("end", f"Download failed: {e}\n")
+                text_widget.see("end")
+                
