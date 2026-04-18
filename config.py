@@ -15,6 +15,7 @@ VOICE_MAPPING = {
     "Saarah": "EXAVITQu4vr4xnSDxMaL",
     "Roger": "CwhRBWXzGAHq8TQ4Fs17",
     "Charlie": "IKne3meq5aSn9XLyUdCD",
-    "George": "JBFqnCBsd6RMkjVDRZzb"
+    "George": "JBFqnCBsd6RMkjVDRZzb",
+    "Default": "FGY2WhTYpPnrIDTdsKH5"
 }
 
