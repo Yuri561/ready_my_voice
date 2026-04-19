@@ -4,10 +4,13 @@ import customtkinter as ctk
 def build_studio_view(self):
     frame = ctk.CTkFrame(self.view_host, fg_color="transparent")
     frame.grid_columnconfigure(0, weight=4)
-    frame.grid_columnconfigure(1, weight=2)
+    frame.grid_columnconfigure(1, weight=3)
+    frame.grid_rowconfigure(0, weight=0)
     frame.grid_rowconfigure(1, weight=1)
-    frame.grid_rowconfigure(2, weight=1)
 
+    # =========================================================
+    # HERO
+    # =========================================================
     hero = ctk.CTkFrame(
         frame,
         fg_color="#0A1327",
@@ -114,6 +117,9 @@ def build_studio_view(self):
     self.make_small_metric(stats_row, "Outputs", str(self.get_media_count())).pack(side="left", padx=8)
     self.make_small_metric(stats_row, "Mode", "Studio").pack(side="left", padx=8)
 
+    # =========================================================
+    # SCRIPT CANVAS
+    # =========================================================
     editor_panel = ctk.CTkFrame(
         frame,
         fg_color="#0A1122",
@@ -121,7 +127,7 @@ def build_studio_view(self):
         border_width=1,
         border_color="#18284A"
     )
-    editor_panel.grid(row=1, column=0, rowspan=2, sticky="nsew", padx=(0, 10))
+    editor_panel.grid(row=1, column=0, sticky="nsew", padx=(0, 10))
     editor_panel.grid_rowconfigure(3, weight=1)
 
     ctk.CTkLabel(
@@ -204,22 +210,35 @@ def build_studio_view(self):
     self.script_box.grid(row=3, column=0, sticky="nsew", padx=18, pady=(0, 18))
     self.script_box.bind("<Return>", self.handle_enter)
 
+    # =========================================================
+    # RIGHT SIDE COLUMN
+    # =========================================================
+    right_column = ctk.CTkFrame(frame, fg_color="transparent")
+    right_column.grid(row=1, column=1, sticky="nsew", padx=(10, 0))
+    right_column.grid_rowconfigure(0, weight=0)
+    right_column.grid_rowconfigure(1, weight=1)
+    right_column.grid_columnconfigure(0, weight=1)
+
+    # =========================================================
+    # COMPACT VOICE TUNING
+    # =========================================================
     controls_panel = ctk.CTkFrame(
-        frame,
+        right_column,
         fg_color="#0A1122",
         corner_radius=24,
         border_width=1,
         border_color="#18284A"
     )
-    controls_panel.grid(row=1, column=1, sticky="nsew", padx=(10, 0), pady=(0, 10))
+    controls_panel.grid(row=0, column=0, sticky="ew", pady=(0, 10))
 
     ctk.CTkLabel(
         controls_panel,
         text="Voice Tuning",
         font=("Helvetica", 22, "bold"),
         text_color="#FFFFFF"
-    ).pack(anchor="w", padx=18, pady=(18, 10))
+    ).pack(anchor="w", padx=18, pady=(16, 8))
 
+    # tighter slider rows by using helper but reducing surrounding panel padding elsewhere
     self.make_slider_row(controls_panel, "Stability", 0.74)
     self.make_slider_row(controls_panel, "Warmth", 0.62)
     self.make_slider_row(controls_panel, "Clarity", 0.86)
@@ -232,63 +251,75 @@ def build_studio_view(self):
         border_width=1,
         border_color="#1C2D50"
     )
-    action_box.pack(fill="x", padx=16, pady=(8, 16))
+    action_box.pack(fill="x", padx=16, pady=(6, 12))
 
     ctk.CTkButton(
         action_box,
         text="⚡ Generate Audio",
-        height=48,
+        height=44,
         corner_radius=14,
         fg_color="#4D7FFF",
         hover_color="#3E6AE0",
         font=("Helvetica", 15, "bold"),
         command=self.generate_audio
-    ).pack(fill="x", padx=14, pady=(14, 8))
+    ).pack(fill="x", padx=12, pady=(12, 8))
 
     button_row = ctk.CTkFrame(action_box, fg_color="transparent")
-    button_row.pack(fill="x", padx=14, pady=(0, 14))
+    button_row.pack(fill="x", padx=12, pady=(0, 12))
 
     ctk.CTkButton(
         button_row,
-        text="▶ Preview",
-        height=42,
+        text="▸ Preview",
+        height=38,
         corner_radius=12,
         fg_color="#14213D",
         hover_color="#1C2D4F",
         font=("Helvetica", 13, "bold"),
         command=self.play_current_audio
-    ).pack(side="left", fill="x", expand=True, padx=(0, 6))
+    ).pack(side="left", fill="x", expand=True, padx=(0, 5))
 
     ctk.CTkButton(
         button_row,
         text="⬇ Export",
-        height=42,
+        height=38,
         corner_radius=12,
         fg_color="#14213D",
         hover_color="#1C2D4F",
         font=("Helvetica", 13, "bold"),
         command=self.export_current_audio
-    ).pack(side="left", fill="x", expand=True, padx=(6, 0))
+    ).pack(side="left", fill="x", expand=True, padx=(5, 0))
 
+    # =========================================================
+    # PROMPT STARTERS / SYSTEM FEED
+    # =========================================================
     lower_right = ctk.CTkFrame(
-        frame,
+        right_column,
         fg_color="#0A1122",
         corner_radius=24,
         border_width=1,
         border_color="#18284A"
     )
-    lower_right.grid(row=2, column=1, sticky="nsew", padx=(10, 0), pady=(10, 0))
-    lower_right.grid_rowconfigure(2, weight=1)
+    lower_right.grid(row=1, column=0, sticky="nsew", pady=(10, 0))
+    lower_right.grid_columnconfigure(0, weight=1)
+    lower_right.grid_rowconfigure(4, weight=1)
 
     ctk.CTkLabel(
         lower_right,
         text="Prompt Starters",
         font=("Helvetica", 20, "bold"),
         text_color="#FFFFFF"
-    ).grid(row=0, column=0, sticky="w", padx=18, pady=(18, 10))
+    ).grid(row=0, column=0, sticky="w", padx=18, pady=(16, 4))
+
+    ctk.CTkLabel(
+        lower_right,
+        text="Quick drop-in lines for ads, narration, hooks, and podcast tone checks.",
+        font=("Helvetica", 12),
+        text_color="#7F90B5"
+    ).grid(row=1, column=0, sticky="w", padx=18, pady=(0, 10))
 
     template_row = ctk.CTkFrame(lower_right, fg_color="transparent")
-    template_row.grid(row=1, column=0, sticky="ew", padx=14, pady=(0, 12))
+    template_row.grid(row=2, column=0, sticky="ew", padx=14, pady=(0, 10))
+    template_row.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
     templates = {
         "Ad": "Introducing the future of sound. Clean, bold, unforgettable.",
@@ -297,35 +328,66 @@ def build_studio_view(self):
         "Podcast": "Welcome back to the show. Today we’re diving into the mindset behind growth."
     }
 
-    for name, text in templates.items():
+    for index, (name, text) in enumerate(templates.items()):
         btn = ctk.CTkButton(
             template_row,
             text=name,
-            height=38,
+            height=36,
             corner_radius=12,
             fg_color="#14213D",
             hover_color="#1C2D4F",
             font=("Helvetica", 12, "bold"),
             command=lambda t=text: self.load_template_text(t)
         )
-        btn.pack(side="left", padx=4, expand=True, fill="x")
+        btn.grid(row=0, column=index, sticky="ew", padx=4)
+
+    feed_header = ctk.CTkFrame(lower_right, fg_color="transparent")
+    feed_header.grid(row=3, column=0, sticky="ew", padx=18, pady=(0, 8))
+    feed_header.grid_columnconfigure(0, weight=1)
 
     ctk.CTkLabel(
-        lower_right,
+        feed_header,
         text="System Feed",
         font=("Helvetica", 16, "bold"),
         text_color="#FFFFFF"
-    ).grid(row=2, column=0, sticky="w", padx=18, pady=(0, 6))
+    ).grid(row=0, column=0, sticky="w")
+
+    ctk.CTkLabel(
+        feed_header,
+        text="LIVE",
+        width=52,
+        height=24,
+        corner_radius=999,
+        fg_color="#10281D",
+        text_color="#67F2AF",
+        font=("Helvetica", 11, "bold")
+    ).grid(row=0, column=1, sticky="e")
+
+    feed_wrap = ctk.CTkFrame(
+        lower_right,
+        fg_color="#0B1426",
+        corner_radius=18,
+        border_width=1,
+        border_color="#1B2C4E"
+    )
+    feed_wrap.grid(row=4, column=0, sticky="nsew", padx=16, pady=(0, 16))
+    feed_wrap.grid_columnconfigure(0, weight=1)
+    feed_wrap.grid_rowconfigure(0, weight=1)
 
     self.activity_box = ctk.CTkTextbox(
-        lower_right,
+        feed_wrap,
         fg_color="#08101E",
         border_width=1,
         border_color="#1A2A4A",
         corner_radius=16,
         text_color="#DBE5FF",
-        font=("Consolas", 13)
+        font=("Consolas", 13),
+        activate_scrollbars=True
     )
-    self.activity_box.grid(row=3, column=0, sticky="nsew", padx=16, pady=(0, 16))
+    self.activity_box.grid(row=0, column=0, sticky="nsew", padx=14, pady=14)
+
+    self.activity_box.insert("1.0", "[system] Ready My Voice console initialized.\n")
+    self.activity_box.insert("end", "[status] Waiting for generation request...\n")
+    self.activity_box.configure(state="normal")
 
     return frame
