@@ -1,4 +1,12 @@
-const Sidebar = () => {
+import { sidebarComponents } from './sidebarComponents';
+
+
+type SidebarProps = {
+  currentView: string;
+  setCurrentView: (value: string) => void;
+};
+
+const Sidebar = ({ currentView, setCurrentView }: SidebarProps) => {
   return (
     <aside className="flex h-full flex-col border-r border-[#16233E] bg-[#08101F] p-3">
       <div>
@@ -13,18 +21,18 @@ const Sidebar = () => {
       </div>
 
       <div className="mt-5 space-y-3">
-        <button className="w-full rounded-2xl bg-[#5B86FF] px-4 py-3 text-left text-sm font-semibold">
-          Studio
-        </button>
-        <button className="w-full rounded-2xl bg-[#0D172B] px-4 py-3 text-left text-sm font-semibold">
-          Projects
-        </button>
-        <button className="w-full rounded-2xl bg-[#0D172B] px-4 py-3 text-left text-sm font-semibold">
-          Media Vault
-        </button>
-        <button className="w-full rounded-2xl bg-[#0D172B] px-4 py-3 text-left text-sm font-semibold">
-          Settings
-        </button>
+        {sidebarComponents.map((component: { name: string; link: string; icon: string }) => (
+          <button
+            key={component.name}
+            onClick={() => setCurrentView(component.name)}
+            className={`w-full rounded-2xl px-4 py-3 text-left text-sm cursor-pointer font-semibold ${currentView === component.name
+                ? "bg-[#5B86FF]"
+                : "bg-[#0D172B] hover:bg-[#1B2D50]"
+              }`}
+          >
+            {component.name}
+          </button>
+        ))}
       </div>
 
       <div className="mt-5 rounded-[20px] border border-[#1D2E51] bg-[#0D172B] p-3">
@@ -35,6 +43,9 @@ const Sidebar = () => {
           </button>
           <button className="w-full rounded-xl bg-[#13203B] py-2.5 text-sm font-semibold">
             Preview
+          </button>
+          <button className="w-full rounded-xl bg-[#13203B] py-2.5 text-sm font-semibold">
+            Export
           </button>
         </div>
       </div>

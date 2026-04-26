@@ -1,33 +1,36 @@
 import { useState } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
-import ScriptCanvas from "./components/ScriptCanvas/ScriptCanvas";
-import RightSide from "./components/RightSide/RightSide";
 import TopBar from "./components/TopBar/TopBar";
+import Studio from "./components/Studio/Studio";
+// import StudioView from "./components/views/Studio";
+import Projects from "./components/views/Projects";
+import MediaVault from "./components/views/MediaVault";
+import Settings from "./components/views/Settings";
+
+export type ViewName = "Studio" | "Projects" | "Media Vault" | "Settings";
 
 export default function App() {
-  const [script, setScript] = useState(
-    "Welcome to Ready My Voice.\n\nStart in Studio to write your script, choose a voice, and generate audio."
-  );
+  const [currentView, setCurrentView] = useState<ViewName>("Studio");
 
-  const [mode, setMode] = useState("Standard");
+  const renderView = () => {
+    if (currentView === "Studio") return <Studio />;
+    if (currentView === "Projects") return <Projects />;
+    if (currentView === "Media Vault") return <MediaVault />;
+    if (currentView === "Settings") return <Settings />;
+
+    return <Studio />;
+  };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#050816] text-white">
-      <div className="grid h-full grid-cols-[200px_1fr]">
-        <Sidebar />
+    <div className="h-screen w-screen overflow-hidden bg-[#050816] text-white font-sans">
+      <div className="grid h-full grid-cols-[200px_1fr] ">
+        <Sidebar currentView={currentView} setCurrentView={setCurrentView}/>
 
-        <main className="grid h-full grid-rows-[70px_1fr] overflow-hidden">
-          {/* Topbar */}
-         <TopBar/>
-          {/* Main body */}
-          <div className="overflow-hidden p-3">
-            <div className="grid h-full grid-cols-[1.2fr_0.8fr] gap-3">
-              {/* Left side */}
-              <ScriptCanvas script={script} setScript={setScript} mode={mode} setMode={setMode} />
+        <main className="grid min-h-0 h-full grid-rows-[70px_1fr]">
+          <TopBar />
 
-              {/* Right side */}
-              <RightSide mode={mode} setScript={setScript} />
-            </div>
+          <div className="min-h-0 overflow-hidden p-5">
+            {renderView()}
           </div>
         </main>
       </div>
