@@ -21,18 +21,29 @@ const Sidebar = ({ currentView, setCurrentView }: SidebarProps) => {
       </div>
 
       <div className="mt-5 space-y-3">
-        {sidebarComponents.map((component: { name: string; link: string; icon: string }) => (
-          <button
-            key={component.name}
-            onClick={() => setCurrentView(component.name)}
-            className={`w-full rounded-2xl px-4 py-3 text-left text-sm cursor-pointer font-semibold ${currentView === component.name
-                ? "bg-[#5B86FF]"
-                : "bg-[#0D172B] hover:bg-[#1B2D50]"
-              }`}
-          >
-            {component.name}
-          </button>
-        ))}
+        {sidebarComponents.map((component: { name: string; link: string; icon: React.FC }) => {
+          const Icon = component.icon;
+
+          return (
+            <button
+              key={component.name}
+              onClick={() => setCurrentView(component.name)}
+              className={`relative w-full cursor-pointer rounded-2xl py-3 pl-13 pr-4 text-left text-sm font-semibold transition ${currentView === component.name
+                  ? "bg-[#5B86FF] text-white"
+                  : "bg-[#0D172B] text-white hover:bg-[#1B2D50]"
+                }`}
+            >
+              <span
+                className={`absolute left-4 top-1/2 -translate-y-1/2 ${currentView === component.name ? "text-white" : "text-[#5B86FF]"
+                  }`}
+              >
+                <Icon />
+              </span>
+
+              {component.name}
+            </button>
+          );
+        })}
       </div>
 
       <div className="mt-5 rounded-[20px] border border-[#1D2E51] bg-[#0D172B] p-3">
