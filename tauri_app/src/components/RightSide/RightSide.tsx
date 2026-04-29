@@ -1,11 +1,19 @@
 import React from 'react';
+import { useAppState } from '../../state/AppState';
 
 type RightSideProps = {
   mode: string;
-  setScript: (value: string) => void;
 };
 
-const RightSide: React.FC<RightSideProps> = ({ mode, setScript }) => {
+const RightSide: React.FC<RightSideProps> = ({ mode }) => {
+  const { setScript, generate, busy, feed, status } = useAppState();
+  const toneClass: Record<string, string> = {
+    ok: "bg-[#10281D] text-[#67F2AF]",
+    info: "bg-[#182542] text-[#79A8FF]",
+    warn: "bg-[#31270F] text-[#FFD16B]",
+    error: "bg-[#351621] text-[#FF98AE]",
+  };
+
   return (
     <section className="grid min-h-0 grid-rows-[auto_auto_1fr] gap-3">
       {/* Generation Settings */}
@@ -16,7 +24,7 @@ const RightSide: React.FC<RightSideProps> = ({ mode, setScript }) => {
         </p>
 
         <div className="mt-4 flex flex-col space-y-4">
-          <div className=''> 
+          <div className=''>
             <label className="mb-1 block text-sm text-[#AAB8D8]">
               Output Format
             </label>
@@ -60,8 +68,12 @@ const RightSide: React.FC<RightSideProps> = ({ mode, setScript }) => {
           </div>
         </div>
 
-        <button className="mt-4 w-full rounded-xl bg-[#4D7FFF] py-3 text-sm font-bold transition hover:bg-[#5B86FF]">
-          Generate Audio
+        <button
+          onClick={() => void generate()}
+          disabled={busy}
+          className="mt-4 w-full rounded-xl bg-[#4D7FFF] py-3 text-sm font-bold transition hover:bg-[#5B86FF] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {busy ? "Generating…" : "Generate Audio"}
         </button>
       </div>
 
@@ -109,17 +121,22 @@ const RightSide: React.FC<RightSideProps> = ({ mode, setScript }) => {
       <div className="min-h-0 rounded-[20px] border border-[#18284A] bg-[#0A1122] p-4">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-lg font-bold">System Feed</h3>
-          <span className="rounded-full bg-[#10281D] px-3 py-1 text-[11px] font-bold text-[#67F2AF]">
-            LIVE
+          <span
+            className={`rounded-full px-3 py-1 text-[11px] font-bold ${
+              toneClass[status.tone] ?? toneClass.info
+            }`}
+          >
+            {status.text}
           </span>
         </div>
 
         <div className="h-[calc(100%-40px)] overflow-auto rounded-[14px] border border-[#1A2A4A] bg-[#08101E] p-3 font-mono text-xs text-[#DBE5FF]">
-          [system] Ready My Voice initialized.
-          <br />
-          [status] Waiting for request...
-          <br />
-          [mode] {mode}
+          <div>[mode] {mode}</div>
+          {feed.map((entry, idx) => (
+            <div key={idx}>
+              [{entry.ts}] {entry.message}
+            </div>
+          ))}
         </div>
       </div>
     </section>

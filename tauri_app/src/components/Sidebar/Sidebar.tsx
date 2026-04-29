@@ -1,4 +1,5 @@
 import { sidebarComponents } from './sidebarComponents';
+import { useAppState } from '../../state/AppState';
 
 
 type SidebarProps = {
@@ -7,6 +8,9 @@ type SidebarProps = {
 };
 
 const Sidebar = ({ currentView, setCurrentView }: SidebarProps) => {
+  const { selectedVoice, status, generate, busy, playCurrent, exportCurrent } =
+    useAppState();
+
   return (
     <aside className="flex h-full flex-col border-r border-[#16233E] bg-[#08101F] p-3">
       <div>
@@ -49,13 +53,23 @@ const Sidebar = ({ currentView, setCurrentView }: SidebarProps) => {
       <div className="mt-5 rounded-[20px] border border-[#1D2E51] bg-[#0D172B] p-3">
         <h2 className="mb-3 text-lg font-bold">Quick Launch</h2>
         <div className="space-y-2">
-          <button className="w-full rounded-xl bg-[#5B86FF] py-2.5 text-sm font-semibold">
-            Generate
+          <button
+            onClick={() => void generate()}
+            disabled={busy}
+            className="w-full rounded-xl bg-[#5B86FF] py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? "Generating…" : "Generate"}
           </button>
-          <button className="w-full rounded-xl bg-[#13203B] py-2.5 text-sm font-semibold">
+          <button
+            onClick={playCurrent}
+            className="w-full rounded-xl bg-[#13203B] py-2.5 text-sm font-semibold"
+          >
             Preview
           </button>
-          <button className="w-full rounded-xl bg-[#13203B] py-2.5 text-sm font-semibold">
+          <button
+            onClick={() => void exportCurrent()}
+            className="w-full rounded-xl bg-[#13203B] py-2.5 text-sm font-semibold"
+          >
             Export
           </button>
         </div>
@@ -66,11 +80,13 @@ const Sidebar = ({ currentView, setCurrentView }: SidebarProps) => {
         <div className="space-y-2">
           <div className="rounded-xl bg-[#101D36] p-3">
             <p className="text-[11px] text-[#8193B7]">Voice</p>
-            <p className="mt-1 text-sm font-bold">Laura</p>
+            <p className="mt-1 text-sm font-bold">
+              {selectedVoice?.name ?? "—"}
+            </p>
           </div>
           <div className="rounded-xl bg-[#101D36] p-3">
             <p className="text-[11px] text-[#8193B7]">Status</p>
-            <p className="mt-1 text-sm font-bold">Ready</p>
+            <p className="mt-1 text-sm font-bold">{status.text}</p>
           </div>
         </div>
       </div>
