@@ -2,7 +2,6 @@ import { useState } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import TopBar from "./components/TopBar/TopBar";
 import Studio from "./components/Studio/Studio";
-// import StudioView from "./components/views/Studio";
 import Projects from "./components/views/Projects";
 import MediaVault from "./components/views/MediaVault";
 import Settings from "./components/views/Settings";
@@ -27,7 +26,7 @@ export default function App() {
         <Sidebar currentView={currentView} setCurrentView={setCurrentView}/>
 
         <main className="grid min-h-0 h-full grid-rows-[70px_1fr]">
-          <TopBar />
+          <TopBar/>
 
           <div className="min-h-0 overflow-hidden p-5">
             {renderView()}
