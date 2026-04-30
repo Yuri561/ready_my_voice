@@ -5,6 +5,7 @@ import Studio from "./components/Studio/Studio";
 import Projects from "./components/views/Projects";
 import MediaVault from "./components/views/MediaVault";
 import Settings from "./components/views/Settings";
+import { AppStateProvider } from "./state/AppState";
 
 export type ViewName = "Studio" | "Projects" | "Media Vault" | "Settings";
 
@@ -21,18 +22,20 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#050816] text-white font-sans">
-      <div className="grid h-full grid-cols-[200px_1fr] ">
-        <Sidebar currentView={currentView} setCurrentView={setCurrentView}/>
+    <AppStateProvider>
+      <div className="h-screen w-screen overflow-hidden bg-[#050816] text-white font-sans">
+        <div className="grid h-full grid-cols-[200px_1fr] ">
+          <Sidebar currentView={currentView} setCurrentView={setCurrentView}/>
 
-        <main className="grid min-h-0 h-full grid-rows-[70px_1fr]">
-          <TopBar/>
+          <main className="grid min-h-0 h-full grid-rows-[70px_1fr]">
+            <TopBar />
 
-          <div className="min-h-0 overflow-hidden p-5">
-            {renderView()}
-          </div>
-        </main>
+            <div className="min-h-0 overflow-hidden p-5">
+              {renderView()}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </AppStateProvider>
   );
 }

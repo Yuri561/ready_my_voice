@@ -1,47 +1,35 @@
 import { useState } from "react";
+import { useAppState } from "../../state/AppState";
 
 type ScriptCanvasProps = {
-  script: string;
-  setScript: (value: string) => void;
   mode: string;
   setMode: (value: string) => void;
 };
 
-type Voice = {
-  name: string;
-  gender: "Female" | "Male";
-  icon: string;
-  style: string;
-};
-
 const modes = ["Standard", "Story", "Ad", "Cinematic"];
-// const tones = ["Natural", "Warm", "Energetic", "Dramatic"];
-
-const voices: Voice[] = [
-  { name: "Laura", gender: "Female", icon: "♀", style: "Warm narrator" },
-  { name: "Roger", gender: "Male", icon: "♂", style: "Deep commercial" },
-  { name: "Saarah", gender: "Female", icon: "♀", style: "Clear presenter" },
-  { name: "Miles", gender: "Male", icon: "♂", style: "Calm storyteller" },
-  { name: "Nina", gender: "Female", icon: "♀", style: "Bright commercial" },
-  { name: "Andre", gender: "Male", icon: "♂", style: "Cinematic trailer" },
-];
-
 const voicesPerPage = 3;
 
-const ScriptCanvas = ({
-  script,
-  setScript,
-  mode,
-  setMode,
-}: ScriptCanvasProps) => {
-  const [selectedVoice, setSelectedVoice] = useState<Voice>(voices[0]);
+const ScriptCanvas = ({ mode, setMode }: ScriptCanvasProps) => {
+  const {
+    script,
+    setScript,
+    voices,
+    selectedVoice,
+    setSelectedVoice,
+    busy,
+    generate,
+    playCurrent,
+    exportCurrent,
+    currentAudio,
+    status,
+  } = useAppState();
 
   const [voicePage, setVoicePage] = useState(0);
 
   const wordCount = script.trim() ? script.trim().split(/\s+/).length : 0;
   const charCount = script.length;
   const estimatedSeconds = Math.max(0, Math.round(wordCount / 2.5));
-  const totalVoicePages = Math.ceil(voices.length / voicesPerPage);
+  const totalVoicePages = Math.max(1, Math.ceil(voices.length / voicesPerPage));
 
   const visibleVoices = voices.slice(
     voicePage * voicesPerPage,
@@ -89,7 +77,8 @@ const ScriptCanvas = ({
               className="grid grid-cols-3 gap-2 animate-[voiceFade_220ms_ease-out]"
             >
               {visibleVoices.map((voice) => {
-                const isSelected = selectedVoice.name === voice.name;
+                const isSelected = selectedVoice?.name === voice.name;
+                const icon = voice.gender === "Female" ? "♀" : "♂";
 
                 return (
                   <button
@@ -119,7 +108,7 @@ const ScriptCanvas = ({
                             : "bg-[#18375C] text-[#9DCAFF]"
                         }`}
                       >
-                        {voice.icon}
+                        {icon}
                       </span>
                     </div>
 
@@ -175,15 +164,25 @@ const ScriptCanvas = ({
           <div className="flex gap-2">
             <button
               type="button"
-              className="rounded-xl bg-[#4D7FFF] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#5B86FF]"
+              disabled={busy}
+              onClick={() => void generate()}
+              className="rounded-xl bg-[#4D7FFF] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#5B86FF] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Generate
+              {busy ? "Generating\u2026" : "Generate"}
             </button>
             <button
               type="button"
+              onClick={playCurrent}
               className="rounded-xl bg-[#14213D] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#1B2D50]"
             >
-              Vault
+              Preview
+            </button>
+            <button
+              type="button"
+              onClick={() => void exportCurrent()}
+              className="rounded-xl bg-[#14213D] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#1B2D50]"
+            >
+              Export
             </button>
           </div>
         </div>
@@ -237,9 +236,11 @@ const ScriptCanvas = ({
               Voice
             </p>
             <p className="mt-2 text-base font-bold text-white">
-              {selectedVoice.name}
+              {selectedVoice?.name ?? "\u2014"}
             </p>
-
+            <p className="mt-1 text-xs text-[#8FA1C7]">
+              {selectedVoice?.style ?? ""}
+            </p>
           </div>
 
           <div className="rounded-[16px] border border-[#1A2A4A] bg-[#08101E] p-3">
@@ -258,17 +259,27 @@ const ScriptCanvas = ({
             <p className="text-xs uppercase tracking-wide text-[#8193B7]">
               Status
             </p>
-            <p className="mt-2 text-sm font-bold text-white">Ready</p>
+            <p className="mt-2 text-sm font-bold text-white">{status.text}</p>
+            {currentAudio && (
+              <p
+                className="mt-1 truncate text-xs text-[#8FA1C7]"
+                title={currentAudio.filename}
+              >
+                {currentAudio.filename}
+              </p>
+            )}
 
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
+                onClick={playCurrent}
                 className="rounded-lg bg-[#14213D] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1B2D50]"
               >
                 Preview
               </button>
               <button
                 type="button"
+                onClick={() => void exportCurrent()}
                 className="rounded-lg bg-[#14213D] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1B2D50]"
               >
                 Export

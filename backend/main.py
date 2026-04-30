@@ -4,7 +4,8 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import health
+from .config import settings
+from .routers import health, media, tts, voices
 
 app = FastAPI(
     title="Ready My Voice API",
@@ -20,6 +21,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:1420",
         "http://127.0.0.1:1420",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
         "tauri://localhost",
         "https://tauri.localhost",
     ],
@@ -29,6 +32,9 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
+app.include_router(voices.router)
+app.include_router(tts.router)
+app.include_router(media.router)
 
 
 @app.get("/")
@@ -41,7 +47,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "backend.main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True,
+        host=settings.host,
+        port=settings.port,
+        reload=settings.reload,
     )
