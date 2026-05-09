@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import os
 from elevenlabs.client import ElevenLabs
-
+from pathlib import Path
 
 load_dotenv()
 
@@ -12,14 +12,19 @@ client = ElevenLabs(
 )
 
 
-
-
 router = APIRouter(prefix="/api", tags=["intro"])
-
 
 class IntroReq(BaseModel):
     text: str
     voice_id: str | None = None
+
+#grabbing user's homedirectory yp
+saved_path = Path.home()
+
+
+
+
+
 
 @router.post("/intro")
 def generate_intro_voice(payload:IntroReq):
@@ -30,5 +35,8 @@ def generate_intro_voice(payload:IntroReq):
         text=text,
         model_id="eleven_v3",
     )
-    play(audio)
-    return {"message": "Intro voice generated and played successfully."}
+    with open(saved_path, "wb") as f:
+        f.write(audio)
+    return {"message": "Intro voice generated and played successfully.",
+            "saved_file": audio
+            }

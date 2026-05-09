@@ -49,7 +49,7 @@ const Projects: React.FC = () => {
         </p>
       </div>
 
-      <div className="min-h-0 overflow-y-auto grid grid-cols-4 gap-3 rounded-[20px] border border-[#18284A] bg-[#0A1122] p-4">
+      <div className="min-h-0 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 rounded-[20px] border border-[#18284A] bg-[#0A1122] p-4">
         {projectsCards.map((project, index) => (
           <div
             key={`${project.title}-${index}`}

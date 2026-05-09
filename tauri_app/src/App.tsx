@@ -23,14 +23,14 @@ export default function App() {
 
   return (
     <AppStateProvider>
-      <div className="h-screen w-screen overflow-hidden bg-[#050816] text-white font-sans">
-        <div className="grid h-full grid-cols-[200px_1fr] ">
-          <Sidebar currentView={currentView} setCurrentView={setCurrentView}/>
+      <div className="h-screen w-screen overflow-y-auto bg-[#050816] text-white font-sans">
+        <div className="grid h-full grid-cols-[170px_1fr] xl:grid-cols-[200px_1fr]">
+          <Sidebar currentView={currentView} setCurrentView={setCurrentView} />
 
-          <main className="grid min-h-0 h-full grid-rows-[70px_1fr]">
+          <main className="grid min-h-0 h-full grid-rows-[64px_1fr] xl:grid-rows-[70px_1fr]">
             <TopBar />
 
-            <div className="min-h-0 overflow-hidden p-5">
+            <div className="min-h-0 overflow-y-auto p-3 xl:p-5">
               {renderView()}
             </div>
           </main>
