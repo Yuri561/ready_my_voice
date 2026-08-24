@@ -60,7 +60,7 @@ const ScriptCanvas = ({ mode, setMode }: ScriptCanvasProps) => {
         </div>
 
         {/* Voice Selection */}
-       {/* Compact Voice Selection */}
+     
 <div className="mb-3 rounded-[14px] border border-[#18284A] bg-[#08101E] p-2.5">
   <div className="mb-2 flex items-center justify-between gap-3">
     <div>
