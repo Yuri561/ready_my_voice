@@ -1,10 +1,11 @@
 import { sidebarComponents } from './sidebarComponents';
 import { useAppState } from '../../state/AppState';
+import { ViewName } from '../../App';
 
 
 type SidebarProps = {
-  currentView: string;
-  setCurrentView: (value: string) => void;
+  currentView: ViewName;
+  setCurrentView: (value: ViewName) => void;
 };
 
 const Sidebar = ({ currentView, setCurrentView }: SidebarProps) => {
@@ -31,7 +32,7 @@ const Sidebar = ({ currentView, setCurrentView }: SidebarProps) => {
           return (
             <button
               key={component.name}
-              onClick={() => setCurrentView(component.name)}
+              onClick={() => setCurrentView(component.name as ViewName)}
               className={`relative w-full cursor-pointer rounded-2xl py-3 pl-13 pr-4 text-left text-sm font-semibold transition ${currentView === component.name
                   ? "bg-[#5B86FF] text-white"
                   : "bg-[#0D172B] text-white hover:bg-[#1B2D50]"
