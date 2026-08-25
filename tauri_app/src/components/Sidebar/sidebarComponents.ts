@@ -1,5 +1,5 @@
 
-import { LayoutDashboard, FolderOpenDot, FileMusic, Settings2 } from 'lucide-react';
+import { LayoutDashboard,  FileMusic, } from 'lucide-react';
 
 
 export const sidebarComponents = [
@@ -10,23 +10,23 @@ export const sidebarComponents = [
 
 
     },
-    {
-        name: 'Projects',
-        link: '/projects',
-        icon: FolderOpenDot,
-    },
+    // {
+    //     name: 'Projects',
+    //     link: '/projects',
+    //     icon: FolderOpenDot,
+    // },
     {
         name: 'Media Vault',
         link: '/media-vault',
         icon: FileMusic,
 
     },
-    {
-        name: 'Settings',   
-        link: '/settings',
-        icon: Settings2,
+    // {
+    //     name: 'Settings',   
+    //     link: '/settings',
+    //     icon: Settings2,
 
-    },
+    // },
 
 ]
 
