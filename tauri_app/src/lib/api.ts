@@ -1,8 +1,5 @@
-// API client for the FastAPI backend.
-// Override with VITE_API_BASE_URL in tauri_app/.env if the backend runs elsewhere.
-export const API_BASE: string =
-  (import.meta.env.VITE_API_BASE_URL as string | undefined) ??
-  "http://127.0.0.1:8000";
+const API_BASE_URL = "http://127.0.0.1:8000";
+
 
 export type Voice = {
   name: string;
@@ -11,81 +8,267 @@ export type Voice = {
   style: string;
 };
 
-export type VoiceList = {
-  voices: Voice[];
-  default: string;
-};
 
 export type MediaFile = {
   filename: string;
-  size: number;
-  modified: string;
-  url: string;
+  url?: string;
+  size?: number;
 };
 
-export type GenerateResponse = {
+
+export type GenerateAudioResponse = {
+  success: boolean;
   filename: string;
-  url: string;
-  voice: string | null;
+  voice?: string;
+  voice_id?: string;
+  url?: string;
 };
 
-async function handle<T>(res: Response): Promise<T> {
-  if (!res.ok) {
-    let detail = `${res.status} ${res.statusText}`;
-    try {
-      const body = await res.json();
-      if (body?.detail) detail = body.detail;
-    } catch {
-      /* ignore */
+
+// ---------------------------------------------------------
+// ERROR HANDLER
+// ---------------------------------------------------------
+
+async function readError(
+  response: Response
+): Promise<string> {
+  try {
+    const data = await response.json();
+
+    if (typeof data.detail === "string") {
+      return data.detail;
     }
-    throw new Error(detail);
+
+    if (data.detail) {
+      return JSON.stringify(
+        data.detail,
+        null,
+        2
+      );
+    }
+
+    return JSON.stringify(
+      data,
+      null,
+      2
+    );
+  } catch {
+    const text = await response.text();
+
+    return (
+      text ||
+      `Request failed with status ${response.status}`
+    );
   }
-  if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
 }
 
-export async function listVoices(): Promise<VoiceList> {
-  return handle<VoiceList>(await fetch(`${API_BASE}/api/voices`));
+
+// ---------------------------------------------------------
+// VOICES
+// ---------------------------------------------------------
+
+export async function listVoices(): Promise<Voice[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/voices`
+  );
+
+  if (!response.ok) {
+    const error = await readError(response);
+
+    throw new Error(
+      `Failed to load voices: ${error}`
+    );
+  }
+
+  const data = await response.json();
+
+  console.log(
+    "VOICE API RESPONSE:",
+    data
+  );
+
+  // Backend may return a plain array
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  // Current backend shape:
+  // {
+  //   voices: [...],
+  //   count: 10
+  // }
+  if (Array.isArray(data.voices)) {
+    return data.voices;
+  }
+
+  console.warn(
+    "Unexpected voice response:",
+    data
+  );
+
+  return [];
 }
+
+
+// ---------------------------------------------------------
+// MEDIA
+// ---------------------------------------------------------
 
 export async function listMedia(): Promise<MediaFile[]> {
-  return handle<MediaFile[]>(await fetch(`${API_BASE}/api/media`));
+  const response = await fetch(
+    `${API_BASE_URL}/api/media`
+  );
+
+  if (!response.ok) {
+    const error = await readError(response);
+
+    throw new Error(
+      `Failed to load media: ${error}`
+    );
+  }
+
+  const data = await response.json();
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+
+  if (Array.isArray(data.media)) {
+    return data.media;
+  }
+
+  return [];
 }
 
-export async function deleteMedia(filename: string): Promise<void> {
-  await handle<void>(
-    await fetch(`${API_BASE}/api/media/${encodeURIComponent(filename)}`, {
-      method: "DELETE",
-    })
-  );
-}
+
+// ---------------------------------------------------------
+// GENERATE AUDIO
+// ---------------------------------------------------------
 
 export async function generateAudio(
   text: string,
-  voice?: string
-): Promise<GenerateResponse> {
-  const res = await fetch(`${API_BASE}/api/tts/generate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, voice }),
-  });
-  return handle<GenerateResponse>(res);
+  voiceId: string,
+  voiceName?: string
+): Promise<GenerateAudioResponse> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/tts/generate`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        text,
+
+        // IMPORTANT:
+        // FastAPI now expects voice_id
+        voice_id: voiceId,
+
+        // Optional, only for logging/display
+        voice_name: voiceName ?? null,
+
+        stability: 0.5,
+
+        similarity_boost: 0.75,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await readError(response);
+
+    console.error(
+      "GENERATE AUDIO ERROR:",
+      response.status,
+      error
+    );
+
+    throw new Error(
+      `Generation failed: ${error}`
+    );
+  }
+
+  return response.json();
 }
 
-export function mediaUrl(filename: string): string {
-  return `${API_BASE}/api/media/${encodeURIComponent(filename)}`;
+
+// ---------------------------------------------------------
+// MEDIA URL
+// ---------------------------------------------------------
+
+export function mediaUrl(
+  filename: string
+): string {
+  return `${API_BASE_URL}/api/media/${encodeURIComponent(
+    filename
+  )}`;
 }
 
-export async function downloadMedia(filename: string): Promise<void> {
-  const res = await fetch(mediaUrl(filename));
-  if (!res.ok) throw new Error(`Download failed: ${res.status}`);
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = objectUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(objectUrl);
+
+// ---------------------------------------------------------
+// DELETE MEDIA
+// ---------------------------------------------------------
+
+export async function deleteMedia(
+  filename: string
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/media/${encodeURIComponent(
+      filename
+    )}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (!response.ok) {
+    const error = await readError(response);
+
+    throw new Error(
+      `Delete failed: ${error}`
+    );
+  }
+}
+
+
+// ---------------------------------------------------------
+// DOWNLOAD / EXPORT MEDIA
+// ---------------------------------------------------------
+
+export async function downloadMedia(
+  filename: string
+): Promise<void> {
+  const response = await fetch(
+    mediaUrl(filename)
+  );
+
+  if (!response.ok) {
+    const error = await readError(response);
+
+    throw new Error(
+      `Download failed: ${error}`
+    );
+  }
+
+  const blob = await response.blob();
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const link =
+    document.createElement("a");
+
+  link.href = url;
+
+  link.download = filename;
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  link.remove();
+
+  URL.revokeObjectURL(url);
 }

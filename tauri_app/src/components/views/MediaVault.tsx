@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { useAppState } from '../../state/AppState';
 
-function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+function formatBytes(n: number | undefined): string {
+  const size = typeof n === 'number' ? n : 0;
+
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(2)} MB`;
 }
 
 const MediaVault: React.FC = () => {
@@ -63,7 +65,13 @@ const MediaVault: React.FC = () => {
                     </p>
                     <p className="mt-1 text-xs text-[#8EA0C5]">
                       {formatBytes(file.size)} ·{" "}
-                      {new Date(file.modified).toLocaleString()}
+                      {new Date(
+                        (file as any).modified ??
+                          (file as any).updated_at ??
+                          (file as any).created_at ??
+                          (file as any).mtime ??
+                          Date.now(),
+                      ).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
