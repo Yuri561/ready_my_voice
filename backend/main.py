@@ -25,6 +25,8 @@ app.add_middleware(
 
         "tauri://localhost",
         "https://tauri.localhost",
+       "https://readymyvoice.com",
+        "https://www.readymyvoice.com",
     ],
     allow_credentials=True,
     allow_methods=["*"],
